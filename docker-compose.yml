@@ -7,6 +7,11 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - TZ=Europe/Berlin
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GIT_AUTHOR_NAME=backmars builder
+      - GIT_AUTHOR_EMAIL=builder@backmars.de
+      - GIT_COMMITTER_NAME=backmars builder
+      - GIT_COMMITTER_EMAIL=builder@backmars.de
     volumes:
       - ./:/app                      # code, templates, static, videos, site/ (git repo), credentials.json, token.json
       - ./logs:/logs                 # build.log ends up here on the host
