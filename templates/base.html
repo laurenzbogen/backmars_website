@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <!-- Must come first, within the first 1024 bytes -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>Backmars</title>
+    <meta name="description" content="{{ description | default('Backmars – Live-Termine, Musik und News der Band aus Deutschland.') }}">
+    <meta name="theme-color" content="#f2f2f2">
+
+    <!-- Favicons -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- Open Graph / social sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Backmars">
+    <meta property="og:title" content="Backmars">
+    <meta property="og:description" content="{{ description | default('Backmars – Live-Termine, Musik und News.') }}">
+    <meta property="og:image" content="https://backmars-web.damp-bread-4e9d.workers.dev/backmars_og.jpg">
+    <meta property="og:url" content="{{ canonical_url }}">
+    <meta property="og:locale" content="de_DE">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style type="text/tailwindcss">
+        @layer theme, base, components, utilities;
+        @import "tailwindcss/theme.css" layer(theme);
+        @import "tailwindcss/utilities.css" layer(utilities);
+    </style>
+
+    <style>
+  /* hard offset shadow in the current text colour: works with any base.html palette */
+  .retro-box   { border: 2px solid currentColor; box-shadow: 4px 4px 0 currentColor; }
+  .retro-press { transition: transform .08s, box-shadow .08s; }
+  .retro-press:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 currentColor; }
+  .retro-focus:focus-visible { outline: 3px dashed currentColor; outline-offset: 3px; }
+</style>
+</head>
+
+<body>
+    <div class="main_content">
+        <header class="flex justify-between text-xl flex-wrap">
+            <a class="font-bold mr-8" href="/">backmars.de</a>
+            <nav>
+                <a class="{% if name == 'home' %}font-bold{% endif %}" href="/">(home)</a>
+                <a class="{% if name == 'live' %}font-bold{% endif %}" href="/live">(live)</a>
+                <a class="{% if name == 'contact' %}font-bold{% endif %}"  href="/contact">(contact)</a>
+            </nav>
+        </header>
+        {% block content %}{% endblock %}
+
+
+
+<nav class="flex flex-wrap gap-3 my-10" aria-label="links">
+
+    {% for link in links %}
+    <a class="retro-box retro-press retro-focus px-4 py-3" href="{{link['link']}}">{{link['name']}}</a>
+    {% endfor %}
+</nav>
+    </div>
+</body>
+
+<style>
+html, body {
+    background-color: #cacaca;   /* what the bars and overscroll sample */
+}
+
+body {
+    font-family: Menlo, "DejaVu Sans Mono", Consolas, monospace;
+    margin: 0;
+}
+
+.main_content {
+    position: relative;          /* anchors the scanline overlay */
+    background-color: #f2f2f2;   /* the real page color; overlay darkens it */
+    min-height: 100lvh;
+    padding: 8px;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+}
+
+.main_content:after,
+.main_content:before {
+        content: " ";
+        display: block;
+        height: 100%;
+        left: 0;
+        pointer-events: none;
+        width: 100%;
+        z-index: 1000000;
+        
+    }
+.main_content:after {
+         background: hsla(0, 6%, 7%, .1);
+         opacity: 0;
+        
+    }
+
+ .main_content:before {
+         background: linear-gradient(hsla(0, 6%, 7%, 0) 50%, rgba(0, 0, 0, .35) 0), linear-gradient(90deg, rgba(255, 0, 0, .06), rgba(0, 255, 0, .02), rgba(0, 0, 255, .06));
+         background-size: 100% 2px, 3px 100%;
+        
+    }
+
+ .main_content:before,
+.main_content:after {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+}
+
+a:link,
+a:visited {
+  color: #0000ee; /* browser default blue */
+}
+
+</style>

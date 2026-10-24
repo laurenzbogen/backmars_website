@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="font-mono text-2xl mb-4">contact us</h1>
+
+<img class="retro-box w-2/3 sm:w-full max-w-md mb-6 mx-auto sm:mx-0" src="backmars_flix.jpg" alt="image of the band backmars">
+
+<p class="max-w-prose text-lg leading-relaxed">
+  want to book us, collaborate or just say hi? <a href="mailto:backmars.mp3@gmail.com">write</a> to us.
+</p>
+
+<p class="font-bold flex items-center gap-3">
+  backmars.mp3@gmail.com
+  <button
+    type="button"
+    onclick="navigator.clipboard.writeText('backmars.mp3@gmail.com')"
+    class="border-2 border-[#0000cc] bg-white px-3 py-1 text-sm text-[#0000cc] shadow-[3px_3px_0_#0000cc] hover:bg-[#0000cc] hover:text-white active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+  >
+    copy
+  </button>
+</p>
+
+
+{% endblock %}

@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block content %}
+
+<p class="max-w-prose text-lg leading-relaxed">
+  backmars is your reliable beat bakery, 128 or more per minute.
+  live improvised electronic music featuring double bass, drums, synths and samples.
+</p>
+<p class="max-w-prose text-lg leading-relaxed mt-3">
+  we use voice samples from our favourite tracks, weird memes and random encounters,
+  possibly with the audience right before the concert.
+</p>
+
+<section class="my-10 md:my-16 max-w-6xl" aria-label="videos">
+  <!-- <p class="text-sm mb-2 md:hidden font-mono">swipe for more &rarr;</p> -->
+  <div class="strip flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3
+              md:grid md:grid-cols-4 md:overflow-visible md:pb-0">
+    {% for i in range(0, 4) %}
+<div class="clip relative shrink-0 snap-start w-[68%] sm:w-[42%] md:w-full aspect-[9/16] bg-black cursor-pointer">
+  <video class="retro-box w-full h-full object-cover"
+         src="videos/video_{{ i }}.mp4#t=0.1"
+         playsinline loop preload="metadata"
+         aria-label="backmars live clip {{ i + 1 }}"></video>
+
+  <button type="button"
+          class="play-btn absolute inset-0 m-auto w-14 h-14 rounded-full bg-black/50 text-white
+                 flex items-center justify-center text-xl transition-opacity"
+          aria-label="Play clip {{ i + 1 }}">▶</button>
+
+<button type="button"
+        class="fs-btn absolute top-2 right-2 w-9 h-9 rounded bg-black/50 text-white
+               flex items-center justify-center text-lg transition-opacity opacity-0 pointer-events-none"
+        aria-label="Fullscreen">⛶</button>
+</div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="max-w-xl my-10" aria-labelledby="mailing-title">
+  <h2 id="mailing-title" class="font-mono mb-2">our mailing list</h2>
+  <form id="subscribe-form" class="flex flex-col sm:flex-row gap-2" novalidate>
+    <label for="email" class="sr-only">email address</label>
+    <input id="email" name="email" type="email" required
+           autocomplete="email" inputmode="email" autocapitalize="off"
+           placeholder="you@example.com"
+           class="retro-box retro-focus flex-1 min-w-0 px-3 py-3 text-base bg-transparent">
+    <button type="submit"
+            class="retro-box retro-press retro-focus px-4 py-3 text-base font-bold disabled:opacity-50">
+      subscribe
+    </button>
+  </form>
+  <p id="subscribe-status" class="mt-3 min-h-[1.5em]" role="status" aria-live="polite"></p>
+</section>
+
+<script>
+  (() => {
+    const LISTMONK_URL = "https://listmonk.laurenzbogen.com/api/public/subscription";
+    const LIST_UUIDS = ["879cb3ba-65f5-4950-a642-971b783b7871"]; // Lists → click your list → UUID
+
+    const form = document.getElementById("subscribe-form");
+    const statusEl = document.getElementById("subscribe-status");
+    const button = form.querySelector("button");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!form.checkValidity()) {
+        statusEl.textContent = "please enter a valid email address.";
+        form.elements["email"].focus();
+        return;
+      }
+
+      const email = form.elements["email"].value.trim();
+      button.disabled = true;
+      statusEl.textContent = "subscribing...";
+
+      try {
+        const res = await fetch(LISTMONK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, list_uuids: LIST_UUIDS }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+
+        form.reset();
+        statusEl.textContent = "subscribed!";
+      } catch (err) {
+        statusEl.textContent = "something went wrong: " + err.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  })();
+</script>
+
+
+<style>
+  /* show the whole video instead of cropping when fullscreen */
+  .clip:fullscreen { width: 100%; height: 100%; aspect-ratio: auto; }
+  .clip:fullscreen video { object-fit: contain; }
+  .clip:-webkit-full-screen { width: 100%; height: 100%; aspect-ratio: auto; }
+  .clip:-webkit-full-screen video { object-fit: contain; }
+</style>
+
+<script>
+const getFsElement = () => document.fullscreenElement || document.webkitFullscreenElement;
+
+function toggleFullscreen(clip) {
+  const video = clip.querySelector('video');
+  if (getFsElement()) {
+    (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+  } else if (clip.requestFullscreen) {
+    clip.requestFullscreen();
+  } else if (clip.webkitRequestFullscreen) {
+    clip.webkitRequestFullscreen();
+  } else if (video.webkitEnterFullscreen) {
+    video.webkitEnterFullscreen(); // iPhone Safari
+  }
+}
+
+document.querySelectorAll('.clip').forEach(clip => {
+  const video = clip.querySelector('video');
+  const btn = clip.querySelector('.play-btn');
+  const fsBtn = clip.querySelector('.fs-btn');
+
+  const sync = () => {
+    const inFs = getFsElement() === clip;
+    const playing = !video.paused;
+    const showFs = playing || inFs; // keep the button available while fullscreen, even if paused
+
+    btn.style.opacity = playing ? '0' : '1';
+    fsBtn.style.opacity = showFs ? '1' : '0';
+    fsBtn.style.pointerEvents = showFs ? 'auto' : 'none';
+  };
+
+  clip.addEventListener('click', () => {
+    if (video.paused) {
+      document.querySelectorAll('.clip video').forEach(v => v !== video && v.pause());
+      video.play();
+    } else {
+      video.pause();
+    }
+  });
+
+  fsBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFullscreen(clip);
+  });
+
+  video.addEventListener('play', sync);
+  video.addEventListener('pause', sync);
+  document.addEventListener('fullscreenchange', sync);
+  document.addEventListener('webkitfullscreenchange', sync);
+  sync();
+});
+
+// "f" key: toggle fullscreen if a clip is fullscreen or playing
+document.addEventListener('keydown', e => {
+  if (e.key.toLowerCase() !== 'f' || e.repeat) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return; // don't hijack Ctrl+F etc.
+
+  const t = e.target;
+  if (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+
+  const fsEl = getFsElement();
+  const clip = (fsEl && fsEl.classList && fsEl.classList.contains('clip'))
+    ? fsEl
+    : [...document.querySelectorAll('.clip')].find(c => !c.querySelector('video').paused);
+
+  if (!clip) return; // nothing playing, nothing fullscreen: ignore the key
+
+  e.preventDefault();
+  toggleFullscreen(clip);
+});
+</script>
+{% endblock %}

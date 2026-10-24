@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Live</h1>
+
+<h2>Upcoming</h2>
+{% for gig in future %}
+  <article class="m-4">
+      <p class="font-bold m-0">{{ gig.title }} | {{ gig.date }}</p>
+    <p class="m-0" style="white-space: pre-line">{{ gig.descr }}</p>
+  </article>
+{% else %}
+  <p>No upcoming gigs.</p>
+{% endfor %}
+
+<h2>Past</h2>
+{% for gig in past|reverse %}
+  <article class="m-4">
+      <p class="font-bold m-0">{{ gig.title }} | {{ gig.date.split()[0] }}</p>
+  </article>
+{% endfor %}
+{% endblock %}
